@@ -77,10 +77,10 @@ Puppet::Type.type(:pulpcore_rpm_remote).provide(:cli, parent: Puppet::Provider::
   private
 
   def required_client_key
-    # This should have been caught by pulpcore_rpm_remote validation, but doesn't hurt to double check here.
+    client_key = resource[:client_key]
 
-    resource[:client_key] || raise(
-      Puppet::DevError, '`client_key` was required while setting `client_cert`, but was not present.'
-    )
+    return client_key if client_key && client_key != :absent
+
+    raise Puppet::DevError, '`client_key` was required while setting `client_cert`, but was not present.'
   end
 end

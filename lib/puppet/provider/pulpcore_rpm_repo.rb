@@ -2,6 +2,10 @@
 
 require_relative 'pulpcore'
 
+# Abstract provider for Pulpcore RPM repository resources.
+#
+# This class contains behaviour common to all `pulpcore_rpm_repo` providers.
+# Concrete implementations, such as the `cli` provider, inherit from it.
 class Puppet::Provider::PulpcoreRpmRepo < Puppet::Provider::Pulpcore
   mk_property_hash_getters(
     :autopublish,

@@ -3,6 +3,7 @@
 require 'json'
 require 'tempfile'
 
+# Mixin for concrete providers that manage Pulp resources through the `pulp` CLI.
 module Puppet::Provider::PulpcoreCli
   def self.included(provider_class)
     provider_class.commands pulp_binary: '/usr/bin/pulp'
@@ -24,6 +25,9 @@ module Puppet::Provider::PulpcoreCli
     self.class.pulp(*args)
   end
 
+  # Write sensitive or large option values to temporary files and pass them to
+  # the Pulp CLI as @file arguments. The block must run the command while the
+  # files are still open.
   def with_temp_file_arguments(file_arguments)
     tempfiles = []
     command_arguments = []

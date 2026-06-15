@@ -40,7 +40,8 @@ Puppet::Type.newtype(:pulpcore_rpm_remote) do
     newvalue(:absent)
     newvalue(%r{\A-----BEGIN CERTIFICATE-----\n.+-----END CERTIFICATE-----\n?\z}m)
 
-    # Check that client_key is set or not set when determining if `client_cert` is insync
+    # Pulp does not return the client_key value, but hidden_fields tells us
+    # whether one is set. Treat the cert and hidden key as a pair for sync.
     def insync?(is)
       client_cert_in_sync = super(is)
 
@@ -68,7 +69,7 @@ Puppet::Type.newtype(:pulpcore_rpm_remote) do
   end
 
   validate do
-    if self[:client_cert] && self[:client_cert] != :absent && !self[:client_key]
+    if self[:client_cert] && self[:client_cert] != :absent && (!self[:client_key] || self[:client_key] == :absent)
       raise Puppet::Error,
             'pulpcore_rpm_remote: `client_key` is required when `client_cert` is set.'
     end

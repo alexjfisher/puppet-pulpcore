@@ -2,6 +2,8 @@
 
 require 'puppet/provider'
 
+# Base provider for logic common to all Pulpcore providers, regardless of the
+# concrete implementation used to communicate with Pulp.
 class Puppet::Provider::Pulpcore < Puppet::Provider
   def self.mk_property_hash_getters(*property_names)
     property_names.each do |property_name|
@@ -11,6 +13,18 @@ class Puppet::Provider::Pulpcore < Puppet::Provider
         property_hash_value(property_name)
       end
     end
+  end
+
+  def self.resource_api_hashes
+    raise Puppet::DevError, "#{self} must implement .resource_api_hashes"
+  end
+
+  def self.resource_api_hash(_resource_name)
+    raise Puppet::DevError, "#{self} must implement .resource_api_hash"
+  end
+
+  def self.resource_properties_from_api_hash(_api_hash)
+    raise Puppet::DevError, "#{self} must implement .resource_properties_from_api_hash"
   end
 
   def initialize(value = {})
@@ -72,6 +86,18 @@ class Puppet::Provider::Pulpcore < Puppet::Provider
 
   def update_property_hash
     @property_hash = self.class.resource_properties(resource[:name])
+  end
+
+  def create_resource
+    raise Puppet::DevError, "#{self.class} must implement #create_resource"
+  end
+
+  def update_resource
+    raise Puppet::DevError, "#{self.class} must implement #update_resource"
+  end
+
+  def delete_resource
+    raise Puppet::DevError, "#{self.class} must implement #delete_resource"
   end
 
   private
