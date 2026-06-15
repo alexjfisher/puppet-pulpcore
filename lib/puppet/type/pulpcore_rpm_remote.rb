@@ -45,7 +45,7 @@ Puppet::Type.newtype(:pulpcore_rpm_remote) do
     def insync?(is)
       client_cert_in_sync = super(is)
 
-      if should == [:absent]
+      if should == :absent
         client_cert_in_sync && !resource.provider.client_key_set?
       else
         client_cert_in_sync && resource.provider.client_key_set?

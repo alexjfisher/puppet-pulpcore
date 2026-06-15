@@ -38,11 +38,19 @@ class Puppet::Provider::PulpcoreRpmRemote < Puppet::Provider::Pulpcore
   end
 
   def self.hidden_field_set?(api_hash, field_name)
-    hidden_field = Array(api_hash['hidden_fields']).find do |field|
+    hidden_fields = api_hash.fetch('hidden_fields') do
+      raise Puppet::Error, 'Pulp API response did not include hidden_fields.'
+    end
+
+    raise Puppet::Error, 'Pulp API response hidden_fields was nil.' if hidden_fields.nil?
+
+    hidden_field = hidden_fields.find do |field|
       field['name'] == field_name
     end
 
-    hidden_field ? hidden_field['is_set'] : false
+    raise Puppet::Error, "Pulp API response did not include #{field_name} in hidden_fields." unless hidden_field
+
+    hidden_field['is_set']
   end
 
   def client_key_set?
