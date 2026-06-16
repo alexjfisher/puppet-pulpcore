@@ -1,24 +1,17 @@
 # frozen_string_literal: true
 
+require_relative '../../puppet_x/pulpcore/type_helpers'
+
 Puppet::Type.newtype(:pulpcore_rpm_distribution) do
+  include PuppetX::Pulpcore::TypeHelpers
+
   ensurable
-
-  def munge_boolean_to_symbol(value)
-    value = value.downcase if value.respond_to? :downcase
-
-    case value
-    when true, :true, 'true', :yes, 'yes'
-      :true
-    when false, :false, 'false', :no, 'no'
-      :false
-    else
-      raise ArgumentError, 'expected a boolean value'
-    end
-  end
 
   newparam(:name, namevar: true)
 
   newproperty(:base_path) do
+    desc 'The base path component of the URL at which the distribution is served.'
+
     newvalue(%r{\A.+\z})
   end
 

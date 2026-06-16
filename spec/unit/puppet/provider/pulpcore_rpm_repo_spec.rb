@@ -16,7 +16,7 @@ describe Puppet::Provider::PulpcoreRpmRepo do
 
   before do
     # Reset the cache
-    described_class.instance_variable_set(:@remote_name_by_href, {})
+    described_class.instance_variable_set(:@name_by_href, {})
   end
 
   describe '.resource_properties_from_api_hash' do
@@ -67,30 +67,6 @@ describe Puppet::Provider::PulpcoreRpmRepo do
       api_hash['autopublish'] = false
 
       expect(described_class.resource_properties_from_api_hash(api_hash)[:autopublish]).to eq(:false)
-    end
-  end
-
-  describe '.remote_property' do
-    it 'returns :absent when the remote href is nil' do
-      expect(described_class.remote_property(nil)).to eq(:absent)
-    end
-
-    it 'resolves a remote href to a remote name' do
-      allow(described_class).to receive(:api_hash_by_href).and_return('name' => remote_name)
-
-      expect(described_class.remote_property(remote_href)).to eq(remote_name)
-      expect(described_class).to have_received(:api_hash_by_href).with(remote_href)
-    end
-  end
-
-  describe '.remote_name_by_href' do
-    it 'caches remote name lookups by href' do
-      allow(described_class).to receive(:api_hash_by_href).and_return('name' => remote_name)
-
-      expect(described_class.remote_name_by_href(remote_href)).to eq(remote_name)
-      expect(described_class.remote_name_by_href(remote_href)).to eq(remote_name)
-
-      expect(described_class).to have_received(:api_hash_by_href).once
     end
   end
 

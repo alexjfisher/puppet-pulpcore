@@ -14,6 +14,8 @@ class Puppet::Provider::PulpcoreRpmRemote < Puppet::Provider::Pulpcore
     :client_cert,
     :ca_cert
   )
+  mk_property_flush_setters(:url, :policy, :tls_validation)
+  mk_absent_clearing_setters(:client_cert, :ca_cert)
 
   def self.resource_properties_from_api_hash(remote_properties)
     resource_properties = {
@@ -37,6 +39,10 @@ class Puppet::Provider::PulpcoreRpmRemote < Puppet::Provider::Pulpcore
     resource_properties
   end
 
+  # Pulp never returns secret values (such as client_key) in an API response.
+  # Instead each appears in the `hidden_fields` array with an `is_set` flag
+  # reporting whether a value is currently stored. Return that flag for the
+  # named field, raising if the response isn't shaped as expected.
   def self.hidden_field_set?(api_hash, field_name)
     hidden_fields = api_hash.fetch('hidden_fields') do
       raise Puppet::Error, 'Pulp API response did not include hidden_fields.'
@@ -55,33 +61,5 @@ class Puppet::Provider::PulpcoreRpmRemote < Puppet::Provider::Pulpcore
 
   def client_key_set?
     @property_hash[:client_key_set] == true
-  end
-
-  def url=(value)
-    @property_flush[:url] = value
-  end
-
-  def policy=(value)
-    @property_flush[:policy] = value
-  end
-
-  def tls_validation=(value)
-    @property_flush[:tls_validation] = value
-  end
-
-  def client_cert=(value)
-    @property_flush[:client_cert] = if value == :absent
-                                      ''
-                                    else
-                                      value
-                                    end
-  end
-
-  def ca_cert=(value)
-    @property_flush[:ca_cert] = if value == :absent
-                                  ''
-                                else
-                                  value
-                                end
   end
 end

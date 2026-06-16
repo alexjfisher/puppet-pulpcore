@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'json'
 require_relative '../pulpcore_cli'
 require_relative '../pulpcore_rpm_repo'
 
@@ -8,13 +7,11 @@ Puppet::Type.type(:pulpcore_rpm_repo).provide(:cli, parent: Puppet::Provider::Pu
   include Puppet::Provider::PulpcoreCli
 
   def self.resource_api_hashes
-    response = pulp('rpm', 'repository', 'list', '--limit', 1_000_000)
-    JSON.parse(response)
+    parse_pulp_json(pulp('rpm', 'repository', 'list', '--limit', 1_000_000))
   end
 
   def self.resource_api_hash(repo_name)
-    response = pulp('rpm', 'repository', 'show', '--name', repo_name)
-    JSON.parse(response)
+    parse_pulp_json(pulp('rpm', 'repository', 'show', '--name', repo_name))
   end
 
   def create_resource

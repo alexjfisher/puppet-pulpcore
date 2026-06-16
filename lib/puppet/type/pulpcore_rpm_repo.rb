@@ -1,20 +1,11 @@
 # frozen_string_literal: true
 
+require_relative '../../puppet_x/pulpcore/type_helpers'
+
 Puppet::Type.newtype(:pulpcore_rpm_repo) do
+  include PuppetX::Pulpcore::TypeHelpers
+
   ensurable
-
-  def munge_boolean_to_symbol(value)
-    value = value.downcase if value.respond_to? :downcase
-
-    case value
-    when true, :true, 'true', :yes, 'yes'
-      :true
-    when false, :false, 'false', :no, 'no'
-      :false
-    else
-      raise ArgumentError, 'expected a boolean value'
-    end
-  end
 
   newparam(:name, namevar: true)
 

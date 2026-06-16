@@ -49,6 +49,42 @@ describe Puppet::Provider::Pulpcore do
     end
   end
 
+  describe '.api_hash_by_href' do
+    it 'raises Puppet::DevError' do
+      expect do
+        described_class.api_hash_by_href('/pulp/api/v3/repositories/rpm/rpm/test/')
+      end.to raise_error(Puppet::DevError, %r{must implement \.api_hash_by_href})
+    end
+  end
+
+  describe '.name_by_href' do
+    let(:href) { '/pulp/api/v3/repositories/rpm/rpm/test/' }
+    let(:provider_class) do
+      Class.new(described_class) do
+        def self.api_hash_by_href(_href)
+          { 'name' => 'resolved_name' }
+        end
+      end
+    end
+
+    it 'returns :absent when the href is nil' do
+      expect(provider_class.name_by_href(nil)).to eq(:absent)
+    end
+
+    it 'resolves an href to the referenced resource name' do
+      expect(provider_class.name_by_href(href)).to eq('resolved_name')
+    end
+
+    it 'memoises lookups by href' do
+      allow(provider_class).to receive(:api_hash_by_href).and_return('name' => 'resolved_name')
+
+      expect(provider_class.name_by_href(href)).to eq('resolved_name')
+      expect(provider_class.name_by_href(href)).to eq('resolved_name')
+
+      expect(provider_class).to have_received(:api_hash_by_href).once
+    end
+  end
+
   describe '#create_resource' do
     it 'raises Puppet::DevError' do
       expect do

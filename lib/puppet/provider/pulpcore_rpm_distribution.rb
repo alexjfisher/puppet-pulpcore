@@ -13,6 +13,8 @@ class Puppet::Provider::PulpcoreRpmDistribution < Puppet::Provider::Pulpcore
     :repo,
     :checkpoint
   )
+  mk_property_flush_setters(:base_path, :checkpoint)
+  mk_absent_clearing_setters(:repo)
 
   def self.resource_properties_from_api_hash(distribution_properties)
     resource_properties = {
@@ -21,40 +23,12 @@ class Puppet::Provider::PulpcoreRpmDistribution < Puppet::Provider::Pulpcore
       provider: name,
 
       base_path: distribution_properties['base_path'],
-      repo: repo_property(distribution_properties['repository']),
+      repo: name_by_href(distribution_properties['repository']),
       checkpoint: distribution_properties['checkpoint'] ? :true : :false
     }
 
     debug "Distribution resource properties: #{resource_properties.inspect}"
 
     resource_properties
-  end
-
-  def self.repo_property(repository_href)
-    return :absent if repository_href.nil?
-
-    repo_name_by_href(repository_href)
-  end
-
-  def self.repo_name_by_href(href)
-    @repo_name_by_href ||= {}
-
-    @repo_name_by_href[href] ||= api_hash_by_href(href)['name']
-  end
-
-  def base_path=(value)
-    @property_flush[:base_path] = value
-  end
-
-  def repo=(value)
-    @property_flush[:repo] = if value == :absent
-                               ''
-                             else
-                               value
-                             end
-  end
-
-  def checkpoint=(value)
-    @property_flush[:checkpoint] = value
   end
 end

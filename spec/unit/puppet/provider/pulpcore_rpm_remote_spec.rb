@@ -4,27 +4,13 @@ require 'spec_helper'
 require 'puppet/provider/pulpcore_rpm_remote'
 
 describe Puppet::Provider::PulpcoreRpmRemote do
-  def resource_name
-    'test_remote'
-  end
+  let(:resource_name) { 'test_remote' }
+  let(:url) { 'https://example.com/pulp/content/test/' }
+  let(:policy) { 'on_demand' }
+  let(:client_cert) { "-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----\n" }
+  let(:ca_cert) { "-----BEGIN CERTIFICATE-----\nMIIC\n-----END CERTIFICATE-----\n" }
 
-  def url
-    'https://example.com/pulp/content/test/'
-  end
-
-  def policy
-    'on_demand'
-  end
-
-  def client_cert
-    "-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----\n"
-  end
-
-  def ca_cert
-    "-----BEGIN CERTIFICATE-----\nMIIC\n-----END CERTIFICATE-----\n"
-  end
-
-  def remote_api_hash
+  let(:remote_api_hash) do
     {
       'name' => resource_name,
       'url' => url,

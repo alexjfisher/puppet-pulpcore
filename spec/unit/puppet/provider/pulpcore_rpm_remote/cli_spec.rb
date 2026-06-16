@@ -4,33 +4,13 @@ require 'spec_helper'
 require 'puppet/provider/pulpcore_rpm_remote/cli'
 
 describe Puppet::Type.type(:pulpcore_rpm_remote).provider(:cli) do
-  def resource_name
-    'test_remote'
-  end
-
-  def url
-    'https://example.com/pulp/content/test/'
-  end
-
-  def updated_url
-    'https://mirror.example.com/pulp/content/test/'
-  end
-
-  def policy
-    'on_demand'
-  end
-
-  def client_cert
-    "-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----\n"
-  end
-
-  def client_key
-    "-----BEGIN PRIVATE KEY-----\nMIIB\n-----END PRIVATE KEY-----\n"
-  end
-
-  def ca_cert
-    "-----BEGIN CERTIFICATE-----\nMIIC\n-----END CERTIFICATE-----\n"
-  end
+  let(:resource_name) { 'test_remote' }
+  let(:url) { 'https://example.com/pulp/content/test/' }
+  let(:updated_url) { 'https://mirror.example.com/pulp/content/test/' }
+  let(:policy) { 'on_demand' }
+  let(:client_cert) { "-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----\n" }
+  let(:client_key) { "-----BEGIN PRIVATE KEY-----\nMIIB\n-----END PRIVATE KEY-----\n" }
+  let(:ca_cert) { "-----BEGIN CERTIFICATE-----\nMIIC\n-----END CERTIFICATE-----\n" }
 
   def new_resource(attributes = {})
     Puppet::Type.type(:pulpcore_rpm_remote).new(

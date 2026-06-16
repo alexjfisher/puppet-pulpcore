@@ -46,6 +46,24 @@ describe Puppet::Provider::PulpcoreCli do
     end
   end
 
+  describe '.parse_pulp_json' do
+    it 'parses a valid JSON response' do
+      expect(provider_class.parse_pulp_json('{"name":"test_remote"}')).to eq('name' => 'test_remote')
+    end
+
+    it 'raises a Puppet::Error when the response is not valid JSON' do
+      expect do
+        provider_class.parse_pulp_json("Warning: deprecated\n")
+      end.to raise_error(Puppet::Error, %r{Unable to parse the Pulp CLI JSON response})
+    end
+
+    it 'includes the start of the offending response in the error' do
+      expect do
+        provider_class.parse_pulp_json("Warning: deprecated\n")
+      end.to raise_error(Puppet::Error, %r{Warning: deprecated})
+    end
+  end
+
   describe '#pulp' do
     it 'delegates to the provider class pulp method' do
       allow(provider_class).to receive(:pulp).and_return('[]')

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'json'
 require_relative '../pulpcore_cli'
 require_relative '../pulpcore_rpm_distribution'
 
@@ -8,15 +7,16 @@ Puppet::Type.type(:pulpcore_rpm_distribution).provide(:cli, parent: Puppet::Prov
   include Puppet::Provider::PulpcoreCli
 
   def self.resource_api_hashes
-    response = pulp('rpm', 'distribution', 'list', '--limit', 1_000_000)
-    JSON.parse(response)
+    parse_pulp_json(pulp('rpm', 'distribution', 'list', '--limit', 1_000_000))
   end
 
   def self.resource_api_hash(distribution_name)
-    response = pulp('rpm', 'distribution', 'show', '--name', distribution_name)
-    JSON.parse(response)
+    parse_pulp_json(pulp('rpm', 'distribution', 'show', '--name', distribution_name))
   end
 
+  # base_path is mandatory to create a distribution but optional once it exists
+  # (you may manage only a subset of properties), so it can't be a required
+  # type-level param. Enforce it here, at create time.
   def create_resource
     raise ArgumentError, '`base_path` is a required property when creating a `Pulpcore_rpm_distribution` resource.' unless resource[:base_path]
 
@@ -41,8 +41,8 @@ Puppet::Type.type(:pulpcore_rpm_distribution).provide(:cli, parent: Puppet::Prov
   def update_resource
     command_arguments = ['rpm', 'distribution', 'update', '--name', resource[:name]]
 
-    command_arguments << '--repository' << @property_flush[:repo]      if @property_flush.key?(:repo)
     command_arguments << '--base-path'  << @property_flush[:base_path] if @property_flush.key?(:base_path)
+    command_arguments << '--repository' << @property_flush[:repo]      if @property_flush.key?(:repo)
 
     case @property_flush[:checkpoint]
     when :true

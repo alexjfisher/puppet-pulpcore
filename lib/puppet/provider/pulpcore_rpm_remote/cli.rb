@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'json'
 require_relative '../pulpcore_cli'
 require_relative '../pulpcore_rpm_remote'
 
@@ -8,15 +7,16 @@ Puppet::Type.type(:pulpcore_rpm_remote).provide(:cli, parent: Puppet::Provider::
   include Puppet::Provider::PulpcoreCli
 
   def self.resource_api_hashes
-    response = pulp('rpm', 'remote', 'list', '--limit', 1_000_000)
-    JSON.parse(response)
+    parse_pulp_json(pulp('rpm', 'remote', 'list', '--limit', 1_000_000))
   end
 
   def self.resource_api_hash(remote_name)
-    response = pulp('rpm', 'remote', 'show', '--name', remote_name)
-    JSON.parse(response)
+    parse_pulp_json(pulp('rpm', 'remote', 'show', '--name', remote_name))
   end
 
+  # url is mandatory to create a remote but optional once it exists (you may
+  # manage only a subset of properties), so it can't be a required type-level
+  # param. Enforce it here, at create time.
   def create_resource
     raise ArgumentError, '`url` is a required property when creating a `Pulpcore_rpm_remote` resource.' unless resource[:url]
 
@@ -76,6 +76,9 @@ Puppet::Type.type(:pulpcore_rpm_remote).provide(:cli, parent: Puppet::Provider::
 
   private
 
+  # The type's validate block already guarantees client_key is present whenever
+  # client_cert is set, so a missing key here is an internal error rather than
+  # bad user input, hence Puppet::DevError rather than ArgumentError.
   def required_client_key
     client_key = resource[:client_key]
 

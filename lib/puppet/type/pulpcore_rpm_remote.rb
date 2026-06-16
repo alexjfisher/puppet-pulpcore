@@ -1,20 +1,11 @@
 # frozen_string_literal: true
 
+require_relative '../../puppet_x/pulpcore/type_helpers'
+
 Puppet::Type.newtype(:pulpcore_rpm_remote) do
+  include PuppetX::Pulpcore::TypeHelpers
+
   ensurable
-
-  def munge_boolean_to_symbol(value)
-    value = value.downcase if value.respond_to? :downcase
-
-    case value
-    when true, :true, 'true', :yes, 'yes'
-      :true
-    when false, :false, 'false', :no, 'no'
-      :false
-    else
-      raise ArgumentError, 'expected a boolean value'
-    end
-  end
 
   newparam(:name, namevar: true)
 
@@ -77,6 +68,9 @@ Puppet::Type.newtype(:pulpcore_rpm_remote) do
 
   private
 
+  # client_key carries private key material, so always mark it sensitive. This
+  # redacts it from logs, reports and `puppet resource` output even when the
+  # user hasn't wrapped it in Sensitive() themselves.
   def set_sensitive_parameters(sensitive_parameters) # rubocop:disable Naming/AccessorMethodName
     parameter(:client_key).sensitive = true if parameter(:client_key)
 

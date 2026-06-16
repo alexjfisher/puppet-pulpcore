@@ -197,10 +197,10 @@ describe Puppet::Type.type(:pulpcore_rpm_distribution).provider(:cli) do
         'update',
         '--name',
         resource_name,
-        '--repository',
-        repo_name,
         '--base-path',
-        updated_base_path
+        updated_base_path,
+        '--repository',
+        repo_name
       )
     end
 

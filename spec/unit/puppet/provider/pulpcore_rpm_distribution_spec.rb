@@ -15,7 +15,7 @@ describe Puppet::Provider::PulpcoreRpmDistribution do
   end
 
   before do
-    described_class.instance_variable_set(:@repo_name_by_href, {})
+    described_class.instance_variable_set(:@name_by_href, {})
   end
 
   describe '.resource_properties_from_api_hash' do
@@ -56,30 +56,6 @@ describe Puppet::Provider::PulpcoreRpmDistribution do
       api_hash['checkpoint'] = false
 
       expect(described_class.resource_properties_from_api_hash(api_hash)[:checkpoint]).to eq(:false)
-    end
-  end
-
-  describe '.repo_property' do
-    it 'returns :absent when the repository href is nil' do
-      expect(described_class.repo_property(nil)).to eq(:absent)
-    end
-
-    it 'resolves a repository href to a repository name' do
-      allow(described_class).to receive(:api_hash_by_href).and_return('name' => repo_name)
-
-      expect(described_class.repo_property(repo_href)).to eq(repo_name)
-      expect(described_class).to have_received(:api_hash_by_href).with(repo_href)
-    end
-  end
-
-  describe '.repo_name_by_href' do
-    it 'caches repository name lookups by href' do
-      allow(described_class).to receive(:api_hash_by_href).and_return('name' => repo_name)
-
-      expect(described_class.repo_name_by_href(repo_href)).to eq(repo_name)
-      expect(described_class.repo_name_by_href(repo_href)).to eq(repo_name)
-
-      expect(described_class).to have_received(:api_hash_by_href).once
     end
   end
 
